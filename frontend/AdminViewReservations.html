@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Bookings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #f4f4f4;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            display: block;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #004a7c; /* Matching color with the navbar */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            position: fixed;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            text-align: center;
+            color: #fff;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .sidebar ul li {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        .sidebar ul li a {
+            color: #fff;
+            padding: 15px 20px;
+            display: block;
+            transition: background-color 0.3s;
+            text-align: left;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #0056b3;
+        }
+
+        .sidebar .btn {
+            background-color: #b53c3c;
+            color: #fff;
+            padding: 15px 20px;
+            font-size: 1rem;
+        }
+
+        /* Content Container */
+        .content-container {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .bookings-container {
+            width: 100vw;
+            margin-left: 250px;
+
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .bookings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .bookings-table th, .bookings-table td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .bookings-table th {
+            background-color: #2980b9;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .bookings-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .bookings-table tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .content-container {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 10px;
+            }
+
+            .sidebar ul li a, .sidebar .btn {
+                padding: 10px;
+            }
+
+            .bookings-table th, .bookings-table td {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .bookings-table th, .bookings-table td {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="manageBuses.html">Manage Buses</a></li>
+            <li><a href="AdminViewReservations.html">View Reservations</a></li>
+            <li><a href="#manage-users">Manage Users</a></li>
+            <li><a href="#settings">Settings</a></li>
+            <!-- Updated Logout Button -->
+            <li><button id="logoutBtn" class="btn">Logout</button></li>
+        </ul>
+    </div>
+
+    <div class="bookings-container">
+        <h1>Total Reservations</h1>
+        <table class="bookings-table">
+            <thead>
+                <tr>
+                    <th>Bus Number</th>
+                    <th>Departure</th>
+                    <th>Destination</th>
+                    <th>Seats Booked</th>
+                    <th>Booking Date</th>
+                    <th>User Email</th>
+                </tr>
+            </thead>
+            <tbody id="bookings-tbody">
+                <!-- Bookings will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+
+
+    <script>
+        // Fetch token from localStorage
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html'; // Redirect if token is not found
+        }
+
+        // Function to fetch all bookings data
+        async function fetchAllBookings() {
+            try {
+                const response = await fetch('http://localhost:3000/api/bookings/allBookings', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const bookings = await response.json();
+                displayBookings(bookings);
+            } catch (error) {
+                console.error('Error fetching all bookings:', error);
+            }
+        }
+
+        // Function to display all bookings
+        function displayBookings(bookings) {
+            const bookingsTbody = document.getElementById('bookings-tbody');
+
+            if (bookings.length > 0) {
+                bookings.forEach(booking => {
+                    const row = document.createElement('tr');
+
+                    const busNumber = booking.busId ? booking.busId.busNumber : 'Unknown Bus';
+                    const departure = booking.busId ? booking.busId.departure : '-';
+                    const destination = booking.busId ? booking.busId.destination : '-';
+                    const userEmail = booking.userId ? booking.userId.email : 'Unknown User';
+
+                    row.innerHTML = `
+                        <td>${busNumber}</td>
+                        <td>${departure}</td>
+                        <td>${destination}</td>
+                        <td>${booking.seatsBooked}</td>
+                        <td>${new Date(booking.bookingDate).toLocaleDateString()}</td>
+                        <td>${userEmail}</td>
+                    `;
+
+                    bookingsTbody.appendChild(row);
+                });
+            } else {
+                bookingsTbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No bookings found.</td></tr>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAllBookings(); // Fetch all bookings when the page loads
+        });
+    </script>
+
+</body>
+</html>

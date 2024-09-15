@@ -1,0 +1,589 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bus Reservation System</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #004a7c; /* Matching color with the navbar */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            position: fixed;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .sidebar ul li {
+            width: 250px;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        .sidebar ul li a {
+            color: #fff;
+            padding: 20px 10px;
+            display: block;
+            width: 92%;
+            border-bottom: rgb(172, 172, 172) 1px solid;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #0056b3;
+        }
+
+        .sidebar .btn{
+            background-color: #b53c3c;
+            color: #fff;
+            width: 250px;
+            padding: 20px 10px;
+            font-size: 1rem;
+        }
+
+        
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 15px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Manage Buses CSS */
+        .container {
+            width: calc(100vw - 250px); /* 100vw is the full viewport width, minus the width of the sidebar */
+            max-width: calc(100vw - 250px); /* Ensures the container does not exceed the calculated width */
+            margin-left: 250px; /* To align the container next to the sidebar */
+            margin-top: 30px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #007bff;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center; /* Center align the heading */
+            width: 100%;
+        }
+
+        .Addbtn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            font-size: 1rem;
+            margin-bottom: 20px; /* Increased margin for spacing */
+            align-self: flex-start; /* Align button to the start */
+        }
+
+        .Addbtn i {
+            margin-right: 8px;
+        }
+
+        .Addbtn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* Adjust button styles for better alignment */
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.8rem;
+            margin-right: 10px; /* Add margin for spacing between buttons */
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-close {
+            cursor: pointer;
+            float: right;
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .modal-close:hover {
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li><a href="AdminDashboard.html">Dashboard</a></li>
+            <li><a href="manageBuses.html">Manage Buses</a></li>
+            <li><a href="#view-reservations">View Reservations</a></li>
+            <li><a href="#manage-users">Manage Users</a></li>
+            <li><a href="#settings">Settings</a></li>
+            <!-- Updated Logout Button -->
+            <li><button id="logoutBtn" class="btn">Logout</button></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+<div class="container">
+    <h1>Manage Buses</h1>
+
+    <!-- Search Input -->
+    <input type="text" id="searchInput" class="form-control" placeholder="Search buses..." oninput="filterBuses()">
+
+    <button class="Addbtn" onclick="showAddBusModal()"><i class="fas fa-plus"></i> Add New Bus</button>
+
+    <!-- Buses Table -->
+    <table id="busesTable">
+        <thead>
+            <tr>
+                <th>Bus Number</th>
+                <th>Driver Name</th>
+                <th>Route</th>
+                <th>Seats Available</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Bus rows will be populated here by JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+
+    <!-- Add/Edit Bus Modal -->
+    <div class="modal" id="busModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Add New Bus</h2>
+            <input type="text" id="busNumber" class="form-control" placeholder="Bus Number" required>
+            <input type="text" id="driverName" class="form-control" placeholder="Driver Name" required>
+            <input type="text" id="departure" class="form-control" placeholder="Departure" required>
+            <input type="text" id="destination" class="form-control" placeholder="Destination" required>
+            <input type="datetime-local" id="departureTime" class="form-control" required>
+            <input type="datetime-local" id="arrivalTime" class="form-control" required>
+            <input type="number" id="seatsAvailable" class="form-control" placeholder="Seats Available">
+            <button class="btn" onclick="saveBus()"><i class="fas fa-save"></i> Save</button>
+        </div>
+    </div>
+
+    <script>
+        let buses = [];
+        let editingBusId = null;
+
+        // Fetch all buses from the API
+        async function fetchBuses() {
+            try {
+                const response = await fetch('http://localhost:3000/api/buses');
+                buses = await response.json();
+                displayBuses();
+            } catch (error) {
+                console.error('Error fetching buses:', error);
+            }
+        }
+
+        // Display buses in the table
+        function displayBuses() {
+            const busesTableBody = document.getElementById('busesTable').querySelector('tbody');
+            busesTableBody.innerHTML = '';
+
+            buses.forEach(bus => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${bus.busNumber}</td>
+                    <td>${bus.driverName}</td>
+                    <td>${bus.departure} - ${bus.destination}</td>
+                    <td>${bus.seatsAvailable}</td>
+                    <td>
+                        <button class="btn" onclick="showEditBusModal('${bus._id}')"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-danger" onclick="deleteBus('${bus._id}')"><i class="fas fa-trash-alt"></i> Delete</button>
+                    </td>
+                `;
+                busesTableBody.appendChild(row);
+            });
+        }
+
+        // Filter buses based on the search query
+function filterBuses() {
+    const searchQuery = document.getElementById('searchInput').value.toLowerCase(); // Get the search input value
+
+    const filteredBuses = buses.filter(bus => {
+        return (
+            bus.busNumber.toLowerCase().includes(searchQuery) ||
+            bus.driverName.toLowerCase().includes(searchQuery) ||
+            bus.departure.toLowerCase().includes(searchQuery) ||
+            bus.destination.toLowerCase().includes(searchQuery)
+        );
+    });
+
+    displayFilteredBuses(filteredBuses); // Display only the filtered buses
+}
+
+// Display filtered buses in the table
+function displayFilteredBuses(filteredBuses) {
+    const busesTableBody = document.getElementById('busesTable').querySelector('tbody');
+    busesTableBody.innerHTML = ''; // Clear the table body
+
+    filteredBuses.forEach(bus => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${bus.busNumber}</td>
+            <td>${bus.driverName}</td>
+            <td>${bus.departure} - ${bus.destination}</td>
+            <td>${bus.seatsAvailable}</td>
+            <td>
+                <button class="btn" onclick="showEditBusModal('${bus._id}')"><i class="fas fa-edit"></i> Edit</button>
+                <button class="btn btn-danger" onclick="deleteBus('${bus._id}')"><i class="fas fa-trash-alt"></i> Delete</button>
+            </td>
+        `;
+        busesTableBody.appendChild(row);
+        });
+    }
+
+    // Update the existing fetchBuses function to display the full list initially
+    async function fetchBuses() {
+
+        try {
+            const response = await fetch('http://localhost:3000/api/buses');
+            buses = await response.json();
+            displayFilteredBuses(buses); // Display all buses initially
+        } catch (error) {
+            console.error('Error fetching buses:', error);
+        }
+    }
+
+
+        // Show the modal to add a new bus
+        function showAddBusModal() {
+            editingBusId = null;
+            document.getElementById('modalTitle').innerText = 'Add New Bus';
+            document.getElementById('busNumber').value = '';
+            document.getElementById('driverName').value = '';
+            document.getElementById('departure').value = '';
+            document.getElementById('destination').value = '';
+            document.getElementById('departureTime').value = '';
+            document.getElementById('arrivalTime').value = '';
+            document.getElementById('seatsAvailable').value = '';
+            document.getElementById('busModal').style.display = 'flex';
+        }
+
+        // Show the modal to edit a bus
+        function showEditBusModal(busId) {
+            const bus = buses.find(b => b._id === busId);
+            if (!bus) return;
+
+            editingBusId = busId;
+            document.getElementById('modalTitle').innerText = 'Edit Bus';
+            document.getElementById('busNumber').value = bus.busNumber;
+            document.getElementById('driverName').value = bus.driverName;
+            document.getElementById('departure').value = bus.departure;
+            document.getElementById('destination').value = bus.destination;
+            document.getElementById('departureTime').value = formatDateForInput(bus.departureTime);
+            document.getElementById('arrivalTime').value = formatDateForInput(bus.arrivalTime);
+            document.getElementById('seatsAvailable').value = bus.seatsAvailable;
+            document.getElementById('busModal').style.display = 'flex';
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById('busModal').style.display = 'none';
+        }
+
+        // Save a new or edited bus
+        async function saveBus() {
+            const busData = {
+                busNumber: document.getElementById('busNumber').value,
+                driverName: document.getElementById('driverName').value,
+                departure: document.getElementById('departure').value,
+                destination: document.getElementById('destination').value,
+                departureTime: document.getElementById('departureTime').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                seatsAvailable: parseInt(document.getElementById('seatsAvailable').value)
+            };
+
+            try {
+                let response;
+                if (editingBusId) {
+                    // Update existing bus
+                    response = await fetch(`http://localhost:3000/api/buses/${editingBusId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(busData)
+                    });
+
+                    if (response.ok) {
+                        alert("Bus Updated Successfully");
+                        fetchBuses();
+                        closeModal();
+                    } else {
+                        alert('Error Updating bus: ', await response.text());
+                    }
+
+                } else {
+                    // Add new bus
+                    response = await fetch('http://localhost:3000/api/buses', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify(busData)
+                    });
+                    
+                    if (response.ok) {
+                        alert("Bus Added Successfully");
+                        fetchBuses();
+                        closeModal();
+                    } else {
+                        alert('Error saving bus: ', await response.text());
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error saving bus:', error);
+            }
+        }
+
+        // Delete a bus
+        async function deleteBus(busId) {
+            if (!confirm('Are you sure you want to delete this bus?')) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/buses/${busId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+
+                });
+
+                if (response.ok) {
+                    alert("Bus Deleted Successfully");
+                    fetchBuses();
+                } else {
+                    alert('Error deleting bus: ', await response.text());
+                }
+            } catch (error) {
+                console.error('Error deleting bus:', error);
+            }
+        }
+
+        // Format the date and time for input type datetime-local
+        function formatDateForInput(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        // Function to initialize data fetching on window load
+        function initializeDataFetching() {
+            const userId = localStorage.getItem('userId');
+
+                if (!userId) {
+                    alert('User not authenticated. Please log in again.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+        }
+
+        // Initialize the app by fetching buses
+        window.onload = () => {
+            initializeDataFetching();
+            fetchBuses();
+        };
+        
+    </script>
+
+    <script>
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+            // Clear user session or token
+            localStorage.removeItem('token');
+            
+            // Redirect to login page
+            window.location.href = 'index.html';
+        });
+
+        
+    </script>
+</body>
+
+</html>

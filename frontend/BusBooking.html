@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Booking - RedBus Style</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f8fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .bus-card {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .bus-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .bus-details {
+            flex: 1;
+        }
+
+        .bus-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .bus-header h3 {
+            font-size: 20px;
+            color: #007bff;
+            margin: 0;
+        }
+
+        .bus-header span {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .bus-info {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .bus-info span {
+            display: block;
+            margin: 5px 0;
+        }
+
+        .bus-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .bus-actions input {
+            width: 80px;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .bus-actions button {
+            padding: 10px 20px;
+            background-color: #ff5733;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .bus-actions button:hover {
+            background-color: #e04e1b;
+        }
+
+        #responseMessage {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Available Buses</h2>
+        <div id="busesContainer"></div>
+        <div id="responseMessage"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const busesContainer = document.getElementById('busesContainer');
+
+            // Fetch available buses
+            try {
+                const response = await fetch('http://localhost:3000/api/buses');
+                const buses = await response.json();
+
+                // Display each bus in a separate container
+                buses.forEach(bus => {
+                    const busCard = document.createElement('div');
+                    busCard.className = 'bus-card';
+                    
+                    busCard.innerHTML = `
+                        <div class="bus-details">
+                            <div class="bus-header">
+                                <h3>${bus.busNumber} - ${bus.driverName}</h3>
+                                <span>${bus.departure} to ${bus.destination}</span>
+                            </div>
+                            <div class="bus-info">
+                                <span>Departure Time: ${new Date(bus.departureTime).toLocaleString()}</span>
+                                <span>Arrival Time: ${new Date(bus.arrivalTime).toLocaleString()}</span>
+                                <span>Seats Available: ${bus.seatsAvailable}</span>
+                            </div>
+                        </div>
+                        <div class="bus-actions">
+                            <input type="number" min="1" max="${bus.seatsAvailable}" placeholder="Seats" id="seatsInput_${bus._id}">
+                            <button onclick="bookSeats('${bus._id}')">Book Now</button>
+                        </div>
+                    `;
+
+                    busesContainer.appendChild(busCard);
+                });
+            } catch (error) {
+                console.error('Error fetching buses:', error);
+                document.getElementById('responseMessage').textContent = 'Error fetching bus data';
+            }
+        });
+
+        async function bookSeats(busId) {
+            const seatsInput = document.getElementById(`seatsInput_${busId}`);
+            const seatsBooked = parseInt(seatsInput.value);
+            const userId = localStorage.getItem('userId'); // Assuming user ID is stored in localStorage
+        
+            if (!seatsBooked || seatsBooked < 1) {
+                alert('Please enter a valid number of seats.');
+                return;
+            }
+        
+            try {
+                const response = await fetch('http://localhost:3000/api/bookings/book', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Replace with your JWT token
+                    },
+                    body: JSON.stringify({ userId, busId, seatsBooked })
+                });
+        
+                //if (!response.ok) {
+                //    throw new Error(`HTTP error! status: ${response.status}`);
+                //}
+        
+                const data = await response.json(); // Parse the JSON response
+        
+                document.getElementById('responseMessage').textContent = data.message;
+        
+                if (response.ok) {
+                    alert('Booking successful!');
+                    seatsInput.value = ''; // Reset the input field
+                    window.location.reload(); // Refresh the page to update available seats
+                } else {
+                    console.error('Booking failed:', data.message);
+                    alert('Booking failed: ' + data.message );
+                    window.location = "login.html";
+                }
+            } catch (error) {
+                console.error('Error booking seats:', error);
+                document.getElementById('responseMessage').textContent = 'Error booking seats';
+            }
+        }
+    </script>
+</body>
+</html>

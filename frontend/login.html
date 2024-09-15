@@ -1,0 +1,378 @@
+<!-- /*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f3f4f6;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.form-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #333333;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333333;
+}
+
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.register-link {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555555;
+}
+
+.register-link a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Login</h1>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <p class="register-link">Don't have an account? <a href="register.html">Register</a></p>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+
+            // Login user
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+        
+                    try {
+                        const response = await fetch('http://localhost:3000/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+        
+                        const data = await response.json();
+                        alert(data.message);
+        
+                        if (response.ok) {
+                            localStorage.setItem('token', data.token);
+                            if (data.isAdmin) {
+                                // Redirect to admin dashboard if the user is an admin
+                                window.location.href = 'AdminDashboard.html';
+                            } else {
+                                // Redirect to the main page if the user is not an admin
+                                window.location.href = 'index.html';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: whitesmoke;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            overflow: hidden;
+            width: 80%;
+        }
+
+        .left-side {
+            flex: 1;
+            background-image: url('./images/bus logo.jpg');
+            background-size: cover;
+            background-position: center;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .right-side {
+            flex: 1;
+            padding: 20px;
+        }
+
+        h2 {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font-size: 3rem;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            background-color: rgb(223, 223, 223);
+            box-shadow: 0 0 2px black;
+            border-radius: 4px;
+            padding-left: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group label {
+            cursor: pointer;
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 5px;
+            width: 30%;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+
+        .input-group input {
+            width: 70%;
+            padding: 10px;
+            border: none;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border: 1px solid #007bff;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: red;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer;
+        }
+
+        .register-link {
+            margin-top: 20px;
+            text-align: center;
+            display: block;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        @media screen and (max-width: 800px) {
+            .container {
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+            }
+
+            .left-side {
+                height: 300px;
+                background-size: cover;
+                background-position: center;
+                margin-top: 20px;
+            }
+
+            .right-side {
+                padding: 20px;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-side"></div>
+        <div class="right-side">
+            <form id="loginForm">
+                <h2>Login</h2>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Login</button>
+                <a href="register.html" class="register-link">Don't have an account? Register here</a>
+                <div id="message"></div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm'); // Correct ID here
+
+            // Login user
+            if (loginForm) {
+                loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+        
+                    try {
+                        const response = await fetch('http://localhost:3000/api/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+        
+                        const data = await response.json();
+                        alert(data.message);
+        
+                        if (response.ok) {
+                            localStorage.setItem('token', data.token);
+                            localStorage.setItem('userId', data.userId);
+                            if (data.isAdmin) {
+                                // Redirect to admin dashboard if the user is an admin
+                                window.location.href = 'AdminDashboard.html';
+                            } else {
+                                // Redirect to the main page if the user is not an admin
+                                window.location.href = 'userIndex.html';
+                            }
+                        } else {
+                            // Display the error message
+                            const messageDiv = document.getElementById('message');
+                            messageDiv.style.display = 'block';
+                            messageDiv.textContent = data.message;
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
