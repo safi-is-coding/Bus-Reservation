@@ -51,7 +51,9 @@ exports.bookSeats = async (req, res) => {
         // // Send a confirmation email to the user
         // await sendMail(userEmail, 'Bus Booking Confirmation', emailContent);
         
+        
         await bus.save();
+
         
         // Send response back to the client
         res.status(201).json({ message: 'Booking successful', booking: newBooking });
