@@ -1,24 +1,28 @@
-const Booking = require('../models/Booking');
-const Bus = require('../models/Bus'); // To update seatsAvailable in the Bus model
 const User = require('../models/User');
 
+const Bus = require('../models/Bus');
+const Booking = require('../models/Booking');
+const { sendMail } = require('../utils/email');
+const { generateEmailTemplate } = require('../views/emailTemplates');
 
-// Book Seats
+// Book seats on a bus
 exports.bookSeats = async (req, res) => {
     try {
-        const { userId, busId, seatsBooked } = req.body;
+        const { userId, busId, seatsBooked, userEmail } = req.body;
 
-        // Find the bus and check if enough seats are available
+        // Find the bus by ID
         const bus = await Bus.findById(busId);
+        const user = await User.findById(userId);
 
+        // Check if the bus exists
         if (!bus) {
             return res.status(404).json({ message: 'Bus not found' });
         }
 
+        // Check if enough seats are available
         if (bus.seatsAvailable < seatsBooked) {
             return res.status(400).json({ message: 'Not enough seats available' });
         }
-        
 
         // Create a new booking
         const newBooking = new Booking({
@@ -27,19 +31,37 @@ exports.bookSeats = async (req, res) => {
             seatsBooked
         });
 
-        // Save the booking
+        // Save the booking in the database
         await newBooking.save();
 
-        // Update the bus to reflect the new number of available seats
+        // Update the bus seat availability
         bus.seatsAvailable -= seatsBooked;
+        
+        // Prepare bus details for the email
+        // const busDetails = {
+            //     busNumber: bus.busNumber,
+        //     departure: bus.departure,
+        //     destination: bus.destination,
+        //     seatsBooked: seatsBooked
+        // };
+        
+        // // Generate the email content
+        // const emailContent = generateEmailTemplate(user.name, busDetails);
+        
+        // // Send a confirmation email to the user
+        // await sendMail(userEmail, 'Bus Booking Confirmation', emailContent);
+        
         await bus.save();
-
+        
+        // Send response back to the client
         res.status(201).json({ message: 'Booking successful', booking: newBooking });
+
     } catch (error) {
         console.error('Error booking seats:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error while booking seat' });
     }
 };
+
 
 // Get User Bookings by a User
 exports.getUserBookings = async (req, res) => {

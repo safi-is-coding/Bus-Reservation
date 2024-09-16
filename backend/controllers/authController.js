@@ -83,7 +83,7 @@ exports.login = async (req, res) => {
 
         const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.SECRET_KEY , { expiresIn: '1h' });
         console.log(user._id);
-        res.status(200).json({ message: 'Login successful', token, isAdmin: user.isAdmin, userId: user._id});
+        res.status(200).json({ message: 'Login successful', token, isAdmin: user.isAdmin, userId: user._id, userEmail: user.email});
     } catch (error) {
         console.error('Error logging in:', error);
         res.status(500).json({ message: 'Server error while login' });
@@ -172,7 +172,7 @@ exports.changePassword = async (req, res) => {
 };
 
 //delete the user account
-exports.deleteUser = async (req, res) => {
+exports.deleteAccount = async (req, res) => {
     try {
         const userId = req.user.id;
         const user = await User.findByIdAndDelete(userId);
@@ -191,3 +191,66 @@ exports.deleteUser = async (req, res) => {
     
 }
 
+exports.deleteUser = async (req, res) => {
+    try {
+        const id = req.params.id;  // Accessing ID from URL parameters
+        const user = await User.findByIdAndDelete(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        res.status(200).json({ message: "User deleted successfully" });
+
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Server error while deleting user' });
+    }
+};
+
+exports.makeAdmin = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.isAdmin) {
+            return res.status(200).json({ message: `${user.name} is already an Admin` });
+        }
+
+        user.isAdmin = true;
+        await user.save();
+
+        res.status(200).json({ message: `${user.name} is now an Admin` });
+
+    } catch (error) {
+        console.error('Error updating user as Admin:', error);
+        res.status(500).json({ message: 'Server error while updating user as Admin' });
+    }
+}
+
+exports.removeAdmin = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (!user.isAdmin) {
+            return res.status(200).json({ message: `${user.name} is already not an Admin` });
+        }
+
+        user.isAdmin = false;
+        await user.save();
+
+        res.status(200).json({ message: `${user.name} is no longer an Admin` });
+
+    } catch (error) {
+        console.error('Error removing user as Admin:', error);
+        res.status(500).json({ message: 'Server error while removing user as Admin' });
+    }
+}

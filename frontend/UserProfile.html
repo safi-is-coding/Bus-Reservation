@@ -162,7 +162,7 @@
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    display: flex;
+    display: none;
     flex-direction: column;
 }
 
@@ -193,6 +193,122 @@
 .bookings-table tr:hover {
     background-color: #f1f1f1;
     cursor: pointer;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 40%;
+    border-radius: 10px;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+}
+
+
+/* Animation for Modal Show */
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+/* Modal Title */
+.modal-content h3 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+    text-align: center;
+}
+
+/* Form Labels */
+.modal-content label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Form Inputs */
+.modal-content input {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease-in-out;
+}
+
+/* Input Focus State */
+.modal-content input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Buttons */
+.modal-content button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+/* Save Changes Button */
+.modal-content button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.modal-content button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Cancel Button */
+.modal-content button[type="button"] {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.modal-content button[type="button"]:hover {
+    background-color: #5a6268;
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 480px) {
+    .modal-content {
+        max-width: 100%;
+        padding: 15px;
+    }
+
+    .modal-content h3 {
+        font-size: 1.25rem;
+    }
+
+    .modal-content input {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .modal-content button {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
 }
 
 .footer {
@@ -263,11 +379,41 @@
     </div>
 
     <div class="main-content">
-        Loading...
+        <h1 style="color: gray">Loading...</h1>
     </div>
 
     <!-- Ensure correct ID is used for displaying bookings -->
     <div id="bookings-container"></div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Edit Profile</h3>
+            <form id="editProfileForm">
+                <label for="editName">Name:</label>
+                <input type="text" id="editName" name="name" required>
+                <label for="editEmail">Email:</label>
+                <input type="email" id="editEmail" name="email" required>
+                <button type="submit">Save Changes</button>
+                <button type="button" onclick="closeModal('editProfileModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Change Password</h3>
+            <form id="changePasswordForm">
+                <label for="oldPassword">Old Password:</label>
+                <input type="password" id="oldPassword" name="oldPassword" required>
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword" required>
+                <button type="submit">Update Password</button>
+                <button type="button" onclick="closeModal('changePasswordModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
 </div>
 
     <div class="footer">
@@ -310,8 +456,8 @@
                                     <p>Email: ${data.email}</p>
                                 </div>
                                 <div class="profile-actions">
-                                    <button>Edit Profile</button>
-                                    <button>Change Password</button>
+                                    <button onclick="openModal('editProfileModal')">Edit Profile</button>
+                                    <button onclick="openModal('changePasswordModal')")">Change Password</button>
                                 </div>
                             </div>
                         `;
@@ -347,58 +493,161 @@
         }
 
         // Function to display user bookings
-function displayUserBookings(bookings) {
-    const bookingsContainer = document.getElementById('bookings-container');
+        function displayUserBookings(bookings) {
+            const bookingsContainer = document.getElementById('bookings-container');
 
-    if (bookingsContainer) {
-        bookingsContainer.innerHTML = ''; // Clear previous content
+            if (bookingsContainer) {
+                bookingsContainer.style.display = "flex";   
+                bookingsContainer.innerHTML = `<p style="color: red;">No bookings found...</p>`; // Clear previous content
 
-        if (bookings.length > 0) {
-            let tableHTML = `
-                <table class="bookings-table">
-                    <thead>
-                        <tr>
-                            <th>Bus Number</th>
-                            <th>Departure</th>
-                            <th>Destination</th>
-                            <th>Seats Booked</th>
-                            <th>Booking Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+                if (bookings.length > 0) {
+                    let tableHTML = `
+                        <table class="bookings-table">
+                            <thead>
+                                <tr>
+                                    <th>Bus Number</th>
+                                    <th>Departure</th>
+                                    <th>Destination</th>
+                                    <th>Seats Booked</th>
+                                    <th>Booking Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
 
-            bookings.forEach(booking => {
-                tableHTML += `
-                    <tr>
-                        <td>${booking.busId.busNumber}</td>
-                        <td>${booking.busId.departure}</td>
-                        <td>${booking.busId.destination}</td>
-                        <td>${booking.seatsBooked}</td>
-                        <td>${new Date(booking.bookingDate).toLocaleDateString()}</td>
-                    </tr>
-                `;
+                    bookings.forEach(booking => {
+                        tableHTML += `
+                            <tr>
+                                <td>${booking.busId.busNumber}</td>
+                                <td>${booking.busId.departure}</td>
+                                <td>${booking.busId.destination}</td>
+                                <td>${booking.seatsBooked}</td>
+                                <td>${new Date(booking.bookingDate).toLocaleDateString()}</td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHTML += `
+                            </tbody>
+                        </table>
+                    `;
+
+                    bookingsContainer.innerHTML = tableHTML; // Insert table HTML
+                } else {
+                    bookingsContainer.innerHTML = `<p>No bookings found.</p>`;
+                }
+            } else {
+                console.error('No element with ID "bookings-container" found.');
+            }
+        }
+
+        // Function to open the modals
+async function openModal(modalId) {
+    document.getElementById(modalId).style.display = "block";
+    if(modalId == 'editProfileModal') {
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            tableHTML += `
-                    </tbody>
-                </table>
-            `;
+            const data = await response.json();
 
-            bookingsContainer.innerHTML = tableHTML; // Insert table HTML
-        } else {
-            bookingsContainer.innerHTML = '<p>No bookings found.</p>';
+            document.getElementById("editName").value = data.name;
+            document.getElementById("editEmail").value = data.email;
+        }catch (error){
+            console.error(error);
         }
-    } else {
-        console.error('No element with ID "bookings-container" found.');
+    }else{
+        document.getElementById('oldPassword', 'newPassword').value = "";
     }
 }
+
+// Function to close the modals
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+}
+
+
+// Submit the edited profile
+document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('editName').value;
+    const email = document.getElementById('editEmail').value;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/updateProfile', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, email })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(result.message);
+            closeModal('editProfileModal');
+            fetchUserProfile();  // Reload the profile data
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+    }
+});
+
+// Submit the change password form
+document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const oldPassword = document.getElementById('oldPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/changePassword', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ oldPassword, newPassword })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(result.message);
+            closeModal('changePasswordModal');
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error changing password:', error);
+    }
+});
+
+// Bind open modal buttons
+document.addEventListener('DOMContentLoaded', () => {
+    // Edit Profile Button
+    document.querySelector('.profile-actions button:first-child').addEventListener('click', () => {
+        openModal('editProfileModal');
+    });
+
+    // Change Password Button
+    document.querySelector('.profile-actions button:nth-child(2)').addEventListener('click', () => {
+        openModal('changePasswordModal');
+    });
+});
+
 
         // Logout function
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('userId');
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
         }
 
         document.addEventListener('DOMContentLoaded', () => {

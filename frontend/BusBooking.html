@@ -1,72 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bus Booking - RedBus Style</title>
+    <title>Bus Booking - Modern Design</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f7f8fa;
+        /* Reset margin and padding */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: rgb(195, 235, 255);
+            color: #333;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 50px auto;
+            max-width: 100vw;
             padding: 20px;
         }
 
         h2 {
             text-align: center;
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 30px;
+            font-size: 32px;
+            color: #0073e6;
+            margin-bottom: 20px;
+        }
+
+        #searchContainer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            width: 50%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #searchInput:focus {
+            border-color: #0073e6;
+        }
+
+        #busesContainer {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .bus-card {
             display: flex;
             flex-direction: row;
-            align-items: center;
             background-color: #fff;
             padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: 4px solid #0073e6;
+            width: 30%;
         }
 
         .bus-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
 
         .bus-details {
-            flex: 1;
+            width: 70%;
+            padding-right: 20px;
         }
 
         .bus-header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
             margin-bottom: 10px;
         }
 
         .bus-header h3 {
-            font-size: 20px;
-            color: #007bff;
-            margin: 0;
+            font-size: 18px;
+            color: #333;
         }
 
         .bus-header span {
-            font-size: 14px;
-            color: #888;
+            font-size: 16px;
+            color: #0073e6;
+            font-weight: bold;
         }
 
         .bus-info {
-            margin-bottom: 10px;
-            font-size: 14px;
+            font-size: 12px;
             color: #555;
         }
 
@@ -79,97 +111,156 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
+            justify-content: center;
         }
 
         .bus-actions input {
-            width: 80px;
+            width: 100px;
             padding: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .bus-actions input:focus {
+            border-color: #0073e6;
         }
 
         .bus-actions button {
-            padding: 10px 20px;
-            background-color: #ff5733;
-            color: #fff;
+            padding: 10px 16px;
+            background-color: #0073e6;
+            color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .bus-actions button:hover {
-            background-color: #e04e1b;
+            background-color: #005bb5;
+            transform: translateY(-2px);
         }
 
         #responseMessage {
-            margin-top: 20px;
-            font-size: 16px;
+            margin-top: 30px;
+            font-size: 18px;
             font-weight: bold;
             text-align: center;
-            color: #333;
+            color: #0073e6;
+        }
+
+        @media (max-width: 768px) {
+            .bus-card {
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .bus-details {
+                padding-right: 0;
+            }
+
+            .bus-actions {
+                align-items: flex-start;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .bus-actions input,
+            .bus-actions button {
+                width: 100%;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>Available Buses</h2>
+
+        <!-- Search Field -->
+        <div id="searchContainer">
+            <input type="text" id="searchInput" placeholder="Search by bus number, departure, or destination">
+        </div>
+
         <div id="busesContainer"></div>
         <div id="responseMessage"></div>
     </div>
 
     <script>
+        let buses = []; // Store all buses
+
         document.addEventListener('DOMContentLoaded', async () => {
             const busesContainer = document.getElementById('busesContainer');
 
             // Fetch available buses
             try {
                 const response = await fetch('http://localhost:3000/api/buses');
-                const buses = await response.json();
+                buses = await response.json();
 
-                // Display each bus in a separate container
-                buses.forEach(bus => {
-                    const busCard = document.createElement('div');
-                    busCard.className = 'bus-card';
-                    
-                    busCard.innerHTML = `
-                        <div class="bus-details">
-                            <div class="bus-header">
-                                <h3>${bus.busNumber} - ${bus.driverName}</h3>
-                                <span>${bus.departure} to ${bus.destination}</span>
-                            </div>
-                            <div class="bus-info">
-                                <span>Departure Time: ${new Date(bus.departureTime).toLocaleString()}</span>
-                                <span>Arrival Time: ${new Date(bus.arrivalTime).toLocaleString()}</span>
-                                <span>Seats Available: ${bus.seatsAvailable}</span>
-                            </div>
-                        </div>
-                        <div class="bus-actions">
-                            <input type="number" min="1" max="${bus.seatsAvailable}" placeholder="Seats" id="seatsInput_${bus._id}">
-                            <button onclick="bookSeats('${bus._id}')">Book Now</button>
-                        </div>
-                    `;
-
-                    busesContainer.appendChild(busCard);
-                });
+                // Display all buses
+                displayBuses(buses);
             } catch (error) {
                 console.error('Error fetching buses:', error);
                 document.getElementById('responseMessage').textContent = 'Error fetching bus data';
             }
+
+            // Add event listener for search input
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredBuses = buses.filter(bus =>
+                    bus.busNumber.toLowerCase().includes(searchTerm) ||
+                    bus.departure.toLowerCase().includes(searchTerm) ||
+                    bus.destination.toLowerCase().includes(searchTerm)
+                );
+                displayBuses(filteredBuses);
+            });
         });
+
+        function displayBuses(buses) {
+            const busesContainer = document.getElementById('busesContainer');
+            busesContainer.innerHTML = ''; // Clear the container before displaying
+
+            buses.forEach(bus => {
+                const busCard = document.createElement('div');
+                busCard.className = 'bus-card';
+
+                busCard.innerHTML = `
+                    <div class="bus-details">
+                        <div class="bus-header">
+                            <h3>${bus.busNumber} - ${bus.driverName}</h3>
+                            <span>${bus.departure} to ${bus.destination}</span>
+                        </div>
+                        <div class="bus-info">
+                            <span>Departure Time: ${new Date(bus.departureTime).toLocaleString()}</span>
+                            <span>Arrival Time: ${new Date(bus.arrivalTime).toLocaleString()}</span>
+                            <span>Seats Available: ${bus.seatsAvailable}</span>
+                        </div>
+                    </div>
+                    <div class="bus-actions">
+                        <input type="number" min="1" max="${bus.seatsAvailable}" placeholder="Seats" id="seatsInput_${bus._id}">
+                        <button onclick="bookSeats('${bus._id}')">Book Now</button>
+                    </div>
+                `;
+
+                busesContainer.appendChild(busCard);
+            });
+        }
 
         async function bookSeats(busId) {
             const seatsInput = document.getElementById(`seatsInput_${busId}`);
             const seatsBooked = parseInt(seatsInput.value);
             const userId = localStorage.getItem('userId'); // Assuming user ID is stored in localStorage
-        
+
             if (!seatsBooked || seatsBooked < 1) {
                 alert('Please enter a valid number of seats.');
                 return;
             }
-        
+
             try {
                 const response = await fetch('http://localhost:3000/api/bookings/book', {
                     method: 'POST',
@@ -179,29 +270,25 @@
                     },
                     body: JSON.stringify({ userId, busId, seatsBooked })
                 });
-        
-                //if (!response.ok) {
-                //    throw new Error(`HTTP error! status: ${response.status}`);
-                //}
-        
+
                 const data = await response.json(); // Parse the JSON response
-        
+
                 document.getElementById('responseMessage').textContent = data.message;
-        
+
                 if (response.ok) {
                     alert('Booking successful!');
                     seatsInput.value = ''; // Reset the input field
                     window.location.reload(); // Refresh the page to update available seats
                 } else {
                     console.error('Booking failed:', data.message);
-                    alert('Booking failed: ' + data.message );
-                    window.location = "login.html";
+                    alert('Booking failed: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error booking seats:', error);
-                document.getElementById('responseMessage').textContent = 'Error booking seats';
+                document.getElementById('responseMessage').textContent = 'Error booking seats.';
             }
         }
     </script>
 </body>
+
 </html>

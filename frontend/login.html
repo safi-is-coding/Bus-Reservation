@@ -354,6 +354,7 @@ input[type="password"]:focus {
                         if (response.ok) {
                             localStorage.setItem('token', data.token);
                             localStorage.setItem('userId', data.userId);
+                            localStorage.setItem('userEmail', data.userEmail);
                             if (data.isAdmin) {
                                 // Redirect to admin dashboard if the user is an admin
                                 window.location.href = 'AdminDashboard.html';
